@@ -1,0 +1,34 @@
+# Platform-specific capture files (contain credentials)
+**/captures/
+**/*.har
+**/*.net.jsonl
+**/*.state.json
+
+# Node modules
+**/node_modules/
+
+# Session files
+**/.numerator_session
+
+# Generated exports
+**/*.xlsx
+**/*.xlsx.gz
+
+# Python cache
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.local

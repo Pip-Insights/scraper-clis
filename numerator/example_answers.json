@@ -1,0 +1,14 @@
+{
+  "static_group": [
+    {"id": "static_options:total_commerce", "name": "Total Commerce", "prompt_desc": "Total Commerce", "attributeId": "static_options", "type": 9999, "is_fixed": false}
+  ],
+  "date_range": [
+    {"id": "date_group:855", "name": "Year: 2025", "prompt_desc": "Year: 2025", "attributeId": "date_group", "type": 9999, "is_fixed": false, "date_range": ["2025-01-01", "2025-12-31"]}
+  ],
+  "shopper_group": [
+    {"id": "shopper_group:1607175", "name": "Goodwipes Flushable Wipes Shoppers", "prompt_desc": "Goodwipes Flushable Wipes Shoppers", "attributeId": "shopper_group", "type": 9999, "is_fixed": false}
+  ],
+  "location": [
+    {"id": "census_region:Midwest", "name": "Midwest", "prompt_desc": "Midwest", "attributeId": "census_region", "type": 9999, "is_fixed": false}
+  ]
+}

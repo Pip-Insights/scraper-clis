@@ -1,0 +1,9 @@
+{
+  "name": "numerator-reverse-eng",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "dependencies": {
+    "playwright": "^1.58.0"
+  }
+}

@@ -1,0 +1,9 @@
+# Captures contain cleartext credentials + session tokens. Never commit.
+captures/
+*.har
+*.net.jsonl
+*.state.json
+node_modules/
+.numerator_session
+*.xlsx
+*.xlsx.gz
