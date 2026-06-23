@@ -93,12 +93,20 @@ Every CLI follows the same layout so that `install.sh` (below) can discover and
 install **all** of them with zero per-CLI configuration — and so consumers like
 the PipInsights portal container never need per-CLI install steps. A CLI is:
 
-- **A directory named after its connector id**: `<connector>/` (e.g. `numerator/`).
-  The directory name is the connector id used in the registry, the Worker creds
-  route, and the installed command name.
+- **A directory named after its connector slug**: `<connector>/` (e.g.
+  `numerator/`). This one slug is load-bearing and must be identical everywhere:
+  the directory name, the installed command name, the connector id in the Worker
+  creds route, AND the `connector_type` stored in the PipInsights `connections`
+  table. That alignment is what lets a client's active connection be matched to
+  its CLI with no extra mapping (it's also how Pip is told which CLIs it can use).
 - **An executable entrypoint at `<connector>/<connector>.py`**: stdlib-only
   Python 3 with a `#!/usr/bin/env python3` shebang. This is what gets symlinked
   onto `PATH` as `<connector>`.
+- **Self-documenting via `--help`**: top-level `<connector> --help` must print a
+  one-line description of the tool and list every subcommand with a blurb, and
+  each subcommand must support `-h`. This is how Pip (and any user) learns a CLI
+  without anything documenting it externally — so it must be complete and current.
+  With argparse you get this for free; keep the `help=`/`description=` text good.
 - **`common/` resolved via `realpath`**: the entrypoint must add the repo root to
   `sys.path` using `os.path.realpath(__file__)` (not `abspath`) so the shared
   `common/` import still resolves when the entrypoint is symlinked onto `PATH`.
