@@ -75,7 +75,7 @@ class Client:
 
     def _csrf(self):
         for c in self.cj:
-            if c.name == "csrftoken" and "insights.numerator.com" in c.domain:
+            if c.name == "csrftoken" and "numerator.com" in c.domain:
                 return c.value
         return None
 
