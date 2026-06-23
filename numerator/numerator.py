@@ -38,8 +38,10 @@ import urllib.parse
 import urllib.request
 
 # Shared credential resolver (repo-root `common/`): env vars locally, the portal
-# Worker inside the Pip container. Same logic for every CLI.
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Worker inside the Pip container. Same logic for every CLI. realpath (not
+# abspath) so the import still resolves when the entrypoint is symlinked onto
+# PATH by install.sh (the symlink points back into the repo, where common/ lives).
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from common import pip_creds
 
 CONNECTOR = "numerator"

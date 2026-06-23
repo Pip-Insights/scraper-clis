@@ -87,13 +87,55 @@ def _credentials(args):
 can't resolve from either env or the Worker. See `numerator/numerator.py`
 (`_credentials`, `cmd_login`, `_client_logged_in`) for the working reference.
 
+## Prescribed CLI format
+
+Every CLI follows the same layout so that `install.sh` (below) can discover and
+install **all** of them with zero per-CLI configuration — and so consumers like
+the PipInsights portal container never need per-CLI install steps. A CLI is:
+
+- **A directory named after its connector id**: `<connector>/` (e.g. `numerator/`).
+  The directory name is the connector id used in the registry, the Worker creds
+  route, and the installed command name.
+- **An executable entrypoint at `<connector>/<connector>.py`**: stdlib-only
+  Python 3 with a `#!/usr/bin/env python3` shebang. This is what gets symlinked
+  onto `PATH` as `<connector>`.
+- **`common/` resolved via `realpath`**: the entrypoint must add the repo root to
+  `sys.path` using `os.path.realpath(__file__)` (not `abspath`) so the shared
+  `common/` import still resolves when the entrypoint is symlinked onto `PATH`.
+  See the top of `numerator/numerator.py`.
+- **Optional `<connector>/requirements.txt`**: only if it genuinely can't be
+  stdlib-only. `install.sh` `pip3 install`s it. Prefer zero dependencies.
+- **Implements the `login` contract** above via `common/pip_creds.py`.
+
+`common/` is shared library code, not a CLI — `install.sh` skips it.
+
+## Container install (`install.sh`)
+
+`./install.sh [BIN_DIR]` discovers every directory matching the format above,
+installs each one's requirements (if any), and symlinks its entrypoint into
+`BIN_DIR` (default `/usr/local/bin`). It is **generic**: adding a new CLI that
+follows the format makes it install automatically — no edit to `install.sh` and
+no edit to any consumer.
+
+```bash
+./install.sh                # installs all CLIs into /usr/local/bin
+./install.sh ~/.local/bin   # or a custom bin dir
+```
+
+The PipInsights portal container bakes this repo in and runs `install.sh` at
+image-build time, so every Pip agent comes with all CLIs preinstalled.
+
 ## Adding a CLI
 
-1. Create `<connector>/` with a zero-dependency (stdlib-only) Python CLI.
-2. Implement the `login` contract above using `common/pip_creds.py`.
+1. Create `<connector>/<connector>.py` per the **Prescribed CLI format** above.
+2. Implement the `login` contract using `common/pip_creds.py`.
 3. Add a row to the **CLI registry** table (connector id + env var names).
 4. Add a per-CLI `README.md` documenting its commands.
 5. Ensure `.gitignore` covers any session cache / capture artifacts.
+
+That's all — `install.sh` picks it up automatically, and the only portal-side
+change is one row in its `CRED_ENV_MAP` (connector → env var names) plus the
+connector's credential onboarding. No portal install changes, ever.
 
 ## Security
 
