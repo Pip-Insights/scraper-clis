@@ -48,6 +48,9 @@ export NMR_PASS='your-password'
 ```
 
 Credentials can also be passed via `--user` and `--pass` flags on any command.
+When neither flags nor `NMR_USER`/`NMR_PASS` are set (i.e. inside the Pip agent
+container), `login` resolves credentials from the portal Worker via the shared
+`common/pip_creds.py` helper — see the credential model in the repo-root README.
 
 ### Command Reference
 

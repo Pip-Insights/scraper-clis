@@ -37,6 +37,14 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+# Shared credential resolver (repo-root `common/`): env vars locally, the portal
+# Worker inside the Pip container. Same logic for every CLI.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from common import pip_creds
+
+CONNECTOR = "numerator"
+CRED_VARS = ["NMR_USER", "NMR_PASS"]
+
 INSIGHTS = "https://insights.numerator.com"
 AUTHZ = "https://authz.numerator.com"
 SESSION_FILE = os.path.expanduser("~/.numerator_session")
@@ -260,23 +268,26 @@ def _wait_for_flow(c, flow_id, interval=30, timeout=1800):
 
 # ───────────────────────── commands ─────────────────────────
 
+def _credentials(args):
+    """Resolve (user, password). Explicit --user/--pass win; otherwise defer to
+    the shared resolver (env vars locally, the portal Worker in the container)."""
+    if args.user and args.pw:
+        return args.user, args.pw
+    creds = pip_creds.resolve(CONNECTOR, CRED_VARS)
+    return args.user or creds["NMR_USER"], args.pw or creds["NMR_PASS"]
+
+
 def _client_logged_in(args):
     c = Client()
     if not c.logged_in():
-        user = args.user or os.environ.get("NMR_USER")
-        pw = args.pw or os.environ.get("NMR_PASS")
-        if not user or not pw:
-            sys.exit("not logged in and no NMR_USER/NMR_PASS (or --user/--pass) to log in with")
+        user, pw = _credentials(args)
         c.login(user, pw)
     return c
 
 
 def cmd_login(args):
     c = Client()
-    user = args.user or os.environ.get("NMR_USER")
-    pw = args.pw or os.environ.get("NMR_PASS")
-    if not user or not pw:
-        sys.exit("set NMR_USER / NMR_PASS env vars, or pass --user/--pass")
+    user, pw = _credentials(args)
     c.login(user, pw)
     me = c.get_json("/api/user/")
     print(f"logged in as {me.get('email') or me.get('username') or me}")
