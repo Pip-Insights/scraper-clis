@@ -80,7 +80,16 @@ def resolve(connector, var_names):
 
 def _fetch(base, token, connector):
     url = base.rstrip("/") + "/api/agent-tools/creds/" + urllib.parse.quote(connector)
-    headers = {"Authorization": "Bearer " + token, "Accept": "application/json"}
+    # A browser-like User-Agent: the Worker sits behind Cloudflare, whose bot
+    # protection rejects urllib's default "Python-urllib/x.y" UA with Error 1010
+    # ("access denied by browser signature") before the request ever reaches us.
+    headers = {
+        "Authorization": "Bearer " + token,
+        "Accept": "application/json",
+        "User-Agent": ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                       "AppleWebKit/537.36 (KHTML, like Gecko) "
+                       "Chrome/145.0.0.0 Safari/537.36"),
+    }
     # Forward the Cloudflare Access service token if present — without it the
     # call gets an HTML login page instead of JSON (same as the MCP skills).
     for header, env_var in (("CF-Access-Client-Id", "CF_ACCESS_CLIENT_ID"),
